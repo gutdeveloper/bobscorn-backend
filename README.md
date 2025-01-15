@@ -19,6 +19,11 @@ Para que las migraciones corran satisfactoriamente debe estar el valor de la var
 npx prisma migrate
 ```
 
+# Correr seeds
+```
+npx prisma db seed
+```
+
 # Ejecutar proyecto
 ```
 npm run dev:watch
