@@ -1,21 +1,29 @@
 import { Prisma, PrismaClient } from "@prisma/client";
+import Redis from "ioredis";
 
 export class PurchasedCornService {
     private prisma: PrismaClient;
+    private redis;
     constructor() {
         this.prisma = new PrismaClient();
+        this.redis = new Redis();
     }
-    lastPurchased = async (clientDni: string) => {
+    lastPurchased = async (clientId: string) => {
         try {
-            const lastPurchase = await this.prisma.purchasedCorn.findFirst({
-                where: {
-                    client_id: clientDni
-                },
-                orderBy: {
-                    last_purchase: 'desc'
-                }
-            });
-            return lastPurchase;
+            let lastPurchased = await this.redis.get(`clientId:${clientId}:lastPurchased`);
+            if (lastPurchased == null) {
+                const purchase = await this.prisma.purchasedCorn.findFirst({
+                    where: {
+                        client_id: clientId
+                    },
+                    orderBy: {
+                        last_purchase: 'desc'
+                    }
+                });
+                lastPurchased = String(purchase?.last_purchase)
+                this.redis.set(`clientId:${clientId}:lastPurchased`, lastPurchased);
+            }
+            return lastPurchased;
         } catch (error) {
             console.error('Error getting last purchase:', error);
             throw new Error('Error getting last purchase');
