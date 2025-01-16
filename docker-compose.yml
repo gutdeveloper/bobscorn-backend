@@ -8,3 +8,9 @@ services:
       POSTGRES_DB: ${POSTGRES_DB}
     ports:
       - "5433:5432"
+  
+  redis:
+    image: redis:latest
+    container_name: redis-bobscorn
+    ports:
+      - "6379:6379"
